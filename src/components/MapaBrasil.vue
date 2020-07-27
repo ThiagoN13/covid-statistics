@@ -1,5 +1,5 @@
 <template>
-    <svg version="1.1" id="svg-map" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="450px" height="460px" viewBox="0 0 450 460" enable-background="new 0 0 450 460" xml:space="preserve">
+    <svg version="1.1" id="svg-map" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="100%" height="460px" viewBox="0 0 450 460" xml:space="preserve">
       <g>
         <a xlink:href="#tocantins" class="estado" name="Tocantins" code="17" uf="to">
           <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M289.558,235.641
@@ -332,10 +332,9 @@ export default {
 }
 </script>
 
-<style>
+<style scoped> 
 #svg-map {
-  display: flex;
-  margin: 0 auto;
+  width: 100%
 }
 
 #svg-map path {
