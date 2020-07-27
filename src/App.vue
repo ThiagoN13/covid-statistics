@@ -1,87 +1,103 @@
 <template>
   <div id="container">
     <div class="mapa">
-      <mapa-brasil @click="buscarDados"></mapa-brasil>
+      <mapa-brasil @click="buscarDados" v-if="visualizacao === 'mapa'"></mapa-brasil>
+      <lista-paises v-if="visualizacao === 'listaPaises'" @start-loading="startLoading" @stop-loading="stopLoading"></lista-paises>
+      <grafico v-if="visualizacao === 'grafico'" @start-loading="startLoading" @stop-loading="stopLoading"></grafico>
     </div>
+
+    <button type="button" class="btn-toggle" @click="toggleVisualizacao">
+      <img src="./assets/img/chart.png" alt="" srcset="">
+    </button>
 
     <loading :enable="carregamento"></loading>
 
     <div v-if="carregamento" class="loading-backdrop"></div>
 
-    <div class="conteudo">
-      <ul>
-        <li>
-          <b>{{ dados.state ? 'Cidade:' : 'País:' }}</b> <span class="valor"> {{ dados.country || dados.state }} </span>
-        </li>
-
-        <li>
-          <b>Casos: </b> <span class="valor"> {{ dados.cases | formatNumber }} </span>
-        </li>
-
-        <li v-if="dados.suspects">
-          <b>Suspeitos: </b> <span class="valor"> {{ dados.suspects | formatNumber }} </span>
-        </li>
-
-        <li>
-          <b>Mortes: </b> <span class="valor"> {{ dados.deaths | formatNumber }} </span>
-        </li>
-
-        <li>
-          <b>Recuperados: </b> <span class="valor"> {{ (dados.recovered || dados.refuses)  | formatNumber }} </span>
-        </li>
-
-        <li>
-          <b>Atualizado em: </b> <span class="valor"> {{ (dados.updated_at || dados.datetime) | formatDate }} </span>
-        </li>
-      </ul>
-      
-    </div>
+    <card-conteudo ref="cardConteudo" @start-loading="startLoading" @stop-loading="stopLoading"></card-conteudo>
   </div>
 </template>
 
 <script>
   import MapaBrasil from './components/MapaBrasil'
   import Loading from './components/Loading'
-  import CovidService from './service/covid-service'
+  import CardConteudo from './components/CardConteudo'
+  import ListaPaises from './components/ListaPaises'
+  import Grafico from './components/Grafico'
 
   export default {
     components: {
       MapaBrasil,
-      Loading
-    },
-
-    async created () {
-      this.carregamento = true
-      this.dados = await CovidService.listaCasosBrasil()
-      this.carregamento = false
+      Loading,
+      CardConteudo,
+      ListaPaises,
+      Grafico
     },
 
     data () {
       return {
-        carregamento: false,
-        dados: {}
+        visualizacaoDisponiveis: ['mapa', 'listaPaises', 'grafico'],
+        visualizacao: 'mapa',
+        carregamento: false
       }
     },
 
     methods: {
-      async buscarDados (uf) {
+      buscarDados (uf) {
+        this.$refs.cardConteudo.buscarDados(uf)
+      },
+
+      toggleVisualizacao () {
+        const index = this.visualizacaoDisponiveis.indexOf(this.visualizacao)
+
+        if (index >= 0 && this.visualizacaoDisponiveis[index + 1]) {
+          this.visualizacao = this.visualizacaoDisponiveis[index + 1]
+        } else {
+          this.visualizacao = this.visualizacaoDisponiveis[0]
+        }
+
+        this.$refs.cardConteudo.buscarDadosBrasil()
+      },
+
+      startLoading () {
         this.carregamento = true
-        this.dados = await CovidService.listarPorEstado(uf) || {}
+      },
+
+      stopLoading () {
         this.carregamento = false
       }
     }
   }
 </script>
 
-<style>
+<style scoped>
   #container {
     height: 100%;
     width: 100%;
   }
 
+  .btn-toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-top: 10px;
+    margin-right: 10px;
+    border-radius: 50%;
+    width: 40px;
+    height: 35px;
+    padding: 5px;
+    outline: none;
+    border-color: #0094d9;
+  }
+
+  .btn-toggle img {
+    width: 100%;
+    height: 100%;
+  }
+
   .mapa {
     background: #efefef;
-    height: 100%;
+    height: 100vh;
   }
 
   .loading-backdrop {
@@ -93,18 +109,5 @@
     z-index: 1040;
     background-color: #000;
     opacity: .1;
-  }
-
-  .conteudo {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    box-shadow: 2px -16px 48px -31px rgba(66,66,66,1);
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-  }
-
-  .conteudo ul {
-    list-style: none;
   }
 </style>

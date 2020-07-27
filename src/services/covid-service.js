@@ -7,7 +7,6 @@ function listarTodosEstados () {
 }
 
 function listarPorEstado (uf) {
-  console.log(`${url}/api/report/v1/brazil/uf/${uf}`)
   return fetch(`${url}/api/report/v1/brazil/uf/${uf}`)
     .then(resultado => resultado.json())
     .then(resultado => resultado)
@@ -19,15 +18,22 @@ function listaCasosBrasil () {
     .then(resultado => resultado.data)
 }
 
+function listaCasosPaises () {
+  return fetch(`${url}/api/report/v1/countries`)
+    .then(resultado => resultado.json())
+    .then(resultado => resultado.data)
+}
+
 function getStatusApi () {
   return fetch(`${url}/api/status/v1`)
     .then(resultado => resultado.json())
-    .then(resultado => resultado.data)
+    .then(resultado => resultado)
 }
 
 export default {
   listarTodosEstados,
   listarPorEstado,
   listaCasosBrasil,
-  getStatusApi
+  getStatusApi,
+  listaCasosPaises
 }
